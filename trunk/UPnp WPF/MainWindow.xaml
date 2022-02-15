@@ -1,0 +1,47 @@
+﻿<Window x:Class="UPnp_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UPnp_WPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
+    
+    <Grid>
+        <DockPanel LastChildFill="true">
+            <ListBox x:Name="MyListBox"
+                     ItemsSource="{Binding}"
+                     DockPanel.Dock="Left"
+                     Margin="10,10,10,10"
+                     Background="LightPink" MouseDoubleClick="MyListBox_MouseDoubleClick" SelectionChanged="MyListBox_SelectionChanged" MouseMove="MyListBox_MouseMove">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Background="White">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100"></ColumnDefinition>
+                                    <ColumnDefinition Width="370"></ColumnDefinition>
+                                    <ColumnDefinition Width="370"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"></RowDefinition>
+                                    <RowDefinition Height="80"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="{Binding Name}"  DockPanel.Dock="Left" Margin="10" Background="AliceBlue" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding URI}" DockPanel.Dock="Left" Margin="10 " Background="AliceBlue" />
+                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2"  Text="{Binding Discription}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
+                                <DockPanel LastChildFill="false" Grid.Row="0" Grid.RowSpan="2" Grid.Column="3">
+                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="top" Content="move top" Click="moveTop_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="bottom" Content="move bottom" Click="moveBottom_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getStopVisibility}" Margin="0,10,0,10" x:Name="stop" Content="force stop" Click="forceStop_Click"/>
+
+                                </DockPanel>
+                            </Grid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </DockPanel>
+    </Grid>
+</Window>
