@@ -19,190 +19,39 @@ using System.Windows.Threading;
 using UPNPLib;
 using Newtonsoft.Json;
 
-using NOTIFY = Notifications.Wpf;
+
 namespace UPnp_WPF
 {
-
-    /// <summary>
+     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static string status_api = "status";
-        private DeviceCollector _col;
-        private ObservableCollection<Dto> _dtos = new ObservableCollection<Dto>();
-        private readonly NOTIFY.NotificationManager notificationManager = new NOTIFY.NotificationManager();
-        private DispatcherTimer _timer;
-        private Dto selected;
 
+        public void setItemsSource(ObservableCollection<Dto> dtos) {
+            MyListBox.ItemsSource = dtos;
+            MyListBox.DataContext = dtos;
+        }
         public MainWindow()
         {
             InitializeComponent();
-
-            MyListBox.ItemsSource = _dtos;
-
-            _col = new DeviceCollector();
-
-            _col.DeviceAdded += new DeviceCollector.DeviceAddedEventHandler(this.DeviceAdded);
-            _col.SearchCompleted += new DeviceCollector.SearchCompletedEventHandler(this.SearchCompleted);
-
-            // タイマのインスタンスを生成
-            _timer = new DispatcherTimer(); // 優先度はDispatcherPriority.Background
-                                            // インターバルを設定
-            _timer.Interval = new TimeSpan(0, 0, 1);
-            // タイマメソッドを設定
-            _timer.Tick += new EventHandler(MyTimerMethod);
-            // タイマを開始
-            _timer.Start();
-
-            // 画面が閉じられるときに、タイマを停止
-            this.Closing += new CancelEventHandler(StopTimer);
-        }
-        // タイマを停止
-        private void StopTimer(object sender, CancelEventArgs e)
-        {
-            _timer.Stop();
         }
 
-        // タイマメソッド
-        private async void MyTimerMethod(object sender, EventArgs e)
-        {
-
-            using (var client = new HttpClient())
-            {
-                foreach (Dto each in _dtos)
-                {
-                    try
-                    {
-                        if (each.Enable)
-                        {
-                            NanoDLPStatus stat = new NanoDLPStatus();
-                            var result = await client.GetAsync(each.URI + "" + status_api);
-                            var json = await result.Content.ReadAsStringAsync();
-                            // インスタンス person にデシリアライズ
-                            stat = JsonConvert.DeserializeObject<NanoDLPStatus>(json);
-                            if (stat.Printing == true)
-                            {
-                                System.Diagnostics.Debug.Write("Plate : " + stat.Path);
-                                System.Diagnostics.Debug.Write(" Layer : " + stat.LayerID + " of " + stat.LayersCount);
-                                System.Diagnostics.Debug.Write(" RemainingTime : " + stat.getRemainingTime + " of " + stat.getTotalTime + " min");
-                                System.Diagnostics.Debug.Write(" Height : " + Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm");
-                                System.Diagnostics.Debug.Write(" ETA : " + stat.getETA);
-
-                                System.Diagnostics.Debug.WriteLine("");
-                                each.visibleStop = true;
-                                each.visibleMove = false;
-                                each.Plate = stat.Path;
-                                each.Remaining = stat.getRemainingTime + " of " + stat.getTotalTime + " min";
-                                each.Layer = stat.LayerID + " of " + stat.LayersCount;
-                                each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
-                                each.ETA = stat.getETA;
-                                each.Printing = stat.Printing;
-                                this.MyListBox.Items.Refresh();
-                            }
-                            // NOTE : 印刷終了
-                            else if (stat.Printing != each.Printing && stat.Printing == false) {
-                                var content = new NOTIFY.NotificationContent
-                                {
-                                    Type = NOTIFY.NotificationType.Information,
-                                    Title = "[" + each.Name + "]",
-                                    Message = "The plate \""+ each.Plate+"\" is printing done.",
-                                };
-
-                                // メッセージを2秒表示
-                                notificationManager.Show(
-                                    content, expirationTime: TimeSpan.FromSeconds(2));
-                                each.Printing = stat.Printing;
-                            }
-                            else
-                            {
-                                each.visibleStop = false;
-                                each.visibleMove = true;
-                                each.Plate = "";
-                                each.Remaining = "";
-                                each.Layer = "";
-                                each.Height = "";
-                                each.ETA = "";
-                                each.Printing = stat.Printing;
-                                this.MyListBox.Items.Refresh();
-                            }
-                        }
-
-                    }
-                    catch
-                    {
-                        each.Enable = false;
-                    }
-                }
-            }
-
-
-        }
-        public void DeviceAdded(UPnPDevice device)
-        {
-            if (device.ManufacturerName == "NanoDLP") {
-                bool flag = true;
-                foreach (Dto each in MyListBox.Items)
-                {
-                    if (each.UUID == device.UniqueDeviceName)
-                    {
-                        flag = false;
-                    }
-                }
-                if (flag) {
-                    _dtos.Add(
-                        new Dto()
-                        {
-                            Name = device.FriendlyName,
-                            URI = device.PresentationURL,
-                            Discription = device.ManufacturerName,
-                            visibleMove = true,
-                            visibleStop = false,
-                            UUID = device.UniqueDeviceName,
-                            Enable = true
-                        //Device = device
-                    }
-                        );
-                }
-                MyListBox.Items.Refresh();
-            }
-        }
-
-        public void SearchCompleted()
-        {
-            System.Diagnostics.Debug.WriteLine("SearchCompleted");
-            _col.DeviceSearchStart();
-        }
-
-        public void DeviceRemoved(string sUDN)
-        {
-            System.Diagnostics.Debug.WriteLine("DeviceRemoved : " + sUDN);
-        }
+ 
 
         private void MyListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            ListBox listBox = (ListBox)sender;
             // 選択中のアイテムの ListBoxItem を取得
             var listBoxItem = (ListBoxItem)MyListBox.ItemContainerGenerator.ContainerFromItem(MyListBox.SelectedItem);
             // ヒットテストでアイテム上
-            if (listBoxItem.InputHitTest(e.GetPosition(listBoxItem)) != null)
+            if (listBoxItem != null)
             {
                 Dto dto = listBoxItem.Content as Dto;
                 var uri = dto.URI;
                 // 選択中のアイテム上でダブルクリックされたとき
                 System.Diagnostics.Process.Start(uri);
             }
-            else
-            {
-                // アイテム以外でダブルクリックされたとき
-            }
-        }
-
-        private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // 選択中のアイテムの ListBoxItem を取得
-            var listBoxItem = (ListBoxItem)MyListBox.ItemContainerGenerator.ContainerFromItem(MyListBox.SelectedItem);
-            selected = listBoxItem.Content as Dto;
-            _timer.Start();
         }
 
         private T FindParent<T>(DependencyObject d) where T : DependencyObject
@@ -223,10 +72,13 @@ namespace UPnp_WPF
             Dto current = btn.DataContext as Dto;
             try
             {
-                using (var client = new HttpClient())
+                if (MessageBox.Show("Are you sure you want to stop printing?", "NanoDLP Browser", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes)
                 {
-                    string stopApi = "printer/force-stop";
-                    var result = await client.GetAsync(current.URI + "" + stopApi);
+                    using (var client = new HttpClient())
+                    {
+                        string stopApi = "printer/force-stop";
+                        var result = await client.GetAsync(current.URI + "" + stopApi);
+                    }
                 }
             }
             catch { }
@@ -255,7 +107,7 @@ namespace UPnp_WPF
             {
                 using (var client = new HttpClient())
                 {
-                    string stopApi = "z-axis/top";
+                    string stopApi = "z-axis/bottom";
                     var result = await client.GetAsync(current.URI + "" + stopApi);
                 }
             }
@@ -264,7 +116,6 @@ namespace UPnp_WPF
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            MyListBox.DataContext = _dtos;
         }
 
         private void MyListBox_MouseMove(object sender, MouseEventArgs e)
@@ -278,11 +129,15 @@ namespace UPnp_WPF
             Dto current = btn.DataContext as Dto;
             try
             {
-                using (var client = new HttpClient())
+                if(MessageBox.Show("Are you sure you want to restart the printer?", "NanoDLP Browser",MessageBoxButton.YesNo,MessageBoxImage.Question ,MessageBoxResult.No) ==MessageBoxResult.Yes)
                 {
-                    string stopApi = "printer/restart";
-                    var result = await client.GetAsync(current.URI + "" + stopApi);
+                    using (var client = new HttpClient())
+                    {
+                        string stopApi = "printer/restart";
+                        var result = await client.GetAsync(current.URI + "" + stopApi);
+                    }
                 }
+
             }
             catch { }
         }
@@ -293,10 +148,13 @@ namespace UPnp_WPF
             Dto current = btn.DataContext as Dto;
             try
             {
-                using (var client = new HttpClient())
+                if (MessageBox.Show("Are you sure you want to power off the printer?", "NanoDLP Browser", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    string stopApi = "printer/off";
-                    var result = await client.GetAsync(current.URI + "" + stopApi);
+                    using (var client = new HttpClient())
+                    {
+                        string stopApi = "printer/off";
+                        var result = await client.GetAsync(current.URI + "" + stopApi);
+                    }
                 }
             }
             catch { }
@@ -308,10 +166,13 @@ namespace UPnp_WPF
             Dto current = btn.DataContext as Dto;
             try
             {
-                using (var client = new HttpClient())
+                if (MessageBox.Show("Are you sure you want to stop printing?", "NanoDLP Browser", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    string stopApi = "printer/stop";
-                    var result = await client.GetAsync(current.URI + "" + stopApi);
+                    using (var client = new HttpClient())
+                    {
+                        string stopApi = "printer/stop";
+                        var result = await client.GetAsync(current.URI + "" + stopApi);
+                    }
                 }
             }
             catch { }
@@ -332,19 +193,6 @@ namespace UPnp_WPF
             catch { }
         }
 
-        private void test_Click(object sender, RoutedEventArgs e)
-        {
-            var content = new NOTIFY.NotificationContent
-            {
-                Type = NOTIFY.NotificationType.Information,
-                Title = "タイトル",
-                Message = "こんにちは",
-            };
-
-            // メッセージを2秒表示
-            notificationManager.Show(
-                content, expirationTime: TimeSpan.FromSeconds(2));
-        }
     }
 
 

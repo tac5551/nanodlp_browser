@@ -13,7 +13,7 @@
                      ItemsSource="{Binding}"
                      DockPanel.Dock="Left"
                      Margin="10,10,10,10"
-                     Background="LightPink" MouseDoubleClick="MyListBox_MouseDoubleClick" SelectionChanged="MyListBox_SelectionChanged" MouseMove="MyListBox_MouseMove">
+                     Background="LightPink" MouseDoubleClick="MyListBox_MouseDoubleClick" MouseMove="MyListBox_MouseMove">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Background="White">
@@ -22,7 +22,7 @@
                                     <ColumnDefinition Width="200"></ColumnDefinition>
                                     <ColumnDefinition Width="200"></ColumnDefinition>
                                     <ColumnDefinition Width="200"></ColumnDefinition>
-                                    <ColumnDefinition Width="500"></ColumnDefinition>
+                                    <ColumnDefinition Width="300"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="40"></RowDefinition>
@@ -61,6 +61,5 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </DockPanel>
-        <Button DockPanel.Dock="Bottom" Width="100" Height="100" Margin="843,310,54.6,10" x:Name="reboot" Content="restart" Click="test_Click"/>
     </Grid>
 </Window>

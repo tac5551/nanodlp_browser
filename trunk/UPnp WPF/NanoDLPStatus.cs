@@ -10,14 +10,46 @@ namespace UPnp_WPF
 
     public class NanoDLPStatus
     {
-        public bool Printing;
-        public string Path;
-        public double LayersCount;
+        public bool AutoShutdown;
+        public double Camera;
+        public bool Cast;
+        public bool Covered;
+        public bool ForceStop;
+        public bool Halted;
+        public double LampHours;
+        
         public double LayerID;
+        public double LayerSinceStart;
         public double LayerStartTime;
         public double LayerTime;
+        public double LayersCount;
         public double Layer;
+
+        public bool Panicked;
+        public double PanicRow;
+
+        public string Path;
+
+        public bool Paused;
         public double PlateHeight;
+        public bool PlateID;
+        public double PrevLayerTime;
+        public bool Printing;
+        public double ResumeID;
+
+        public double SlicingPlateID;
+        public double StartAfterSlice;
+        public double State;
+
+        public double Version;
+
+        public string Wifi;
+        public string disk;
+        public string mem;
+        public string proc;
+        public string proc_numb;
+        public string temp;
+        public string uptime;
 
         public double getLayerTime
         {

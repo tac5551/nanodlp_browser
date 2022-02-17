@@ -25,7 +25,7 @@ namespace UPnp_WPF
         int SearchComplete([In] int lFindData);
     }
     
-    class DeviceCollector : IUPnPDeviceFinderCallback
+    public class DeviceCollector : IUPnPDeviceFinderCallback
     {
         private UPnPDeviceFinder _finder;
         private int _SearchId;
@@ -47,12 +47,15 @@ namespace UPnp_WPF
 
         ~DeviceCollector()
         {
-            //_finder.CancelAsyncFind(_SearchId);
+            _finder.CancelAsyncFind(_SearchId);
         }
 
         public void DeviceSearchStart() {
             _SearchId = _finder.CreateAsyncFind("upnp:rootdevice", 0, this);
             _finder.StartAsyncFind(_SearchId);
+        }
+        public void DeviceSearchStop() {
+            _finder.CancelAsyncFind(_SearchId);
         }
 
         #region IUPnPDeviceFinderCallback Members
