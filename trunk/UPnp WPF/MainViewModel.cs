@@ -15,7 +15,15 @@ namespace UPnp_WPF
     {
         public string Name { get; set; }
         public string URI { get; set; }
+        public string UUID { get; set; }
         public string Discription { get; set; }
+
+        public string ETA { get; set; }
+        public string Remaining { get; set; }
+        public string Height { get; set; }
+        public string Layer { get; set; }
+        public string Plate { get; set; }
+
         //public UPnPDevice Device { get; set; }
         public bool visibleStop { get; set; }
         public bool visibleMove { get; set; }
@@ -76,5 +84,4 @@ namespace UPnp_WPF
             }
         }
     }
-
 }

@@ -42,8 +42,7 @@ namespace UPnp_WPF
         public DeviceCollector()
         {
             _finder = new UPnPDeviceFinder();
-            _SearchId = _finder.CreateAsyncFind("upnp:rootdevice", 0, this);
-            _finder.StartAsyncFind(_SearchId);
+            this.DeviceSearchStart();
         }
 
         ~DeviceCollector()
@@ -51,24 +50,28 @@ namespace UPnp_WPF
             //_finder.CancelAsyncFind(_SearchId);
         }
 
+        public void DeviceSearchStart() {
+            _SearchId = _finder.CreateAsyncFind("upnp:rootdevice", 0, this);
+            _finder.StartAsyncFind(_SearchId);
+        }
 
         #region IUPnPDeviceFinderCallback Members
 
         int IUPnPDeviceFinderCallback.DeviceAdded(int lFindData, IUPnPDevice pDevice)
         {
-            DeviceAdded((UPnPDevice)pDevice);
+            if (DeviceAdded != null) DeviceAdded((UPnPDevice)pDevice);
             return 0;
         }
 
         int IUPnPDeviceFinderCallback.DeviceRemoved(int lFindData, string bstrUDN)
         {
-            //DeviceRemoved(bstrUDN);
+            if(DeviceRemoved != null) DeviceRemoved(bstrUDN);
             return 0;
         }
 
         int IUPnPDeviceFinderCallback.SearchComplete(int lFindData)
         {
-            SearchCompleted();
+            if (SearchCompleted != null) SearchCompleted();
             return 0;
         }
 
