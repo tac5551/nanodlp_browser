@@ -70,11 +70,10 @@ namespace UPnp_WPF
 
             using (var client = new HttpClient())
             {
-                foreach (var each in _dtos)
+                foreach (Dto each in _dtos)
                 {
                     try
                     {
-
                         if (each.Enable)
                         {
                             NanoDLPStatus stat = new NanoDLPStatus();
@@ -98,7 +97,22 @@ namespace UPnp_WPF
                                 each.Layer = stat.LayerID + " of " + stat.LayersCount;
                                 each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
                                 each.ETA = stat.getETA;
+                                each.Printing = stat.Printing;
                                 this.MyListBox.Items.Refresh();
+                            }
+                            // NOTE : 印刷終了
+                            else if (stat.Printing != each.Printing && stat.Printing == false) {
+                                var content = new NOTIFY.NotificationContent
+                                {
+                                    Type = NOTIFY.NotificationType.Information,
+                                    Title = "[" + each.Name + "]",
+                                    Message = "The plate \""+ each.Plate+"\" is printing done.",
+                                };
+
+                                // メッセージを2秒表示
+                                notificationManager.Show(
+                                    content, expirationTime: TimeSpan.FromSeconds(2));
+                                each.Printing = stat.Printing;
                             }
                             else
                             {
@@ -109,6 +123,7 @@ namespace UPnp_WPF
                                 each.Layer = "";
                                 each.Height = "";
                                 each.ETA = "";
+                                each.Printing = stat.Printing;
                                 this.MyListBox.Items.Refresh();
                             }
                         }
