@@ -23,6 +23,7 @@ namespace UPnp_WPF
         public string Height { get; set; }
         public string Layer { get; set; }
         public string Plate { get; set; }
+        public bool Printing { get; set; }
 
         //public UPnPDevice Device { get; set; }
         public bool visibleStop { get; set; }
