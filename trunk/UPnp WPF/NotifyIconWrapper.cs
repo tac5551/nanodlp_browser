@@ -74,6 +74,10 @@
                     {
                         flag = false;
                     }
+                    if(each.Enable== false)
+                    {
+                        each.Enable = true;
+                    }
                 }
                 if (flag)
                 {
