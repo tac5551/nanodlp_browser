@@ -2,7 +2,7 @@ NanoDLP Browser
 
 # DEMO
  
-"hoge"の魅力が直感的に伝えわるデモ動画や図解を載せる
+![](https://tac-lab.tech/wp-content/uploads/2022/02/main-window.png)
  
 # Features
 
@@ -28,8 +28,12 @@ NanoDLP_Browser.exeを実行してください。
 # Usage
 
 ・Double-click on the printer in the list to display the NanoDLP screen in your browser.
+
+![](https://tac-lab.tech/wp-content/uploads/2022/02/main-window.png)
+
 ・When the window is closed, it is stored in the task tray.
 ・When you close the window, it will be stored in the task tray. - You will be notified when printing is finished or a new printer is connected.
+
 ![](https://tac-lab.tech/wp-content/uploads/2022/02/POPUP.png)
 
 
@@ -41,7 +45,7 @@ NanoDLP_Browser.exeを実行してください。
 # Author
  
 * tac
-* ![](https://tac-lab.net)
+* ![https://tac-lab.net](https://tac-lab.net)
 * tac@tac-lab.net
  
 # License
