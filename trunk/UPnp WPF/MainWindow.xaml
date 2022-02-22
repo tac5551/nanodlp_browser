@@ -5,10 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UPnp_WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="1003.783" Loaded="Window_Loaded">
-    
+        Title="NanoDLP Browser" Height="450" Width="1003.783" Loaded="Window_Loaded">
+
     <Grid>
-        <DockPanel LastChildFill="true">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="47*"/>
+            <ColumnDefinition Width="96*"/>
+            <ColumnDefinition Width="861*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel LastChildFill="true" Grid.ColumnSpan="3">
             <ListBox x:Name="MyListBox"
                      ItemsSource="{Binding}"
                      DockPanel.Dock="Left"

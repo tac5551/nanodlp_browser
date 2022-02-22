@@ -51,19 +51,19 @@
             this.toolStripMenuItem_Open,
             this.toolStripMenuItem_Exit});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(99, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(112, 48);
             // 
             // toolStripMenuItem_Open
             // 
             this.toolStripMenuItem_Open.Name = "toolStripMenuItem_Open";
-            this.toolStripMenuItem_Open.Size = new System.Drawing.Size(98, 22);
-            this.toolStripMenuItem_Open.Text = "表示";
+            this.toolStripMenuItem_Open.Size = new System.Drawing.Size(111, 22);
+            this.toolStripMenuItem_Open.Text = "(&S)how";
             // 
             // toolStripMenuItem_Exit
             // 
             this.toolStripMenuItem_Exit.Name = "toolStripMenuItem_Exit";
-            this.toolStripMenuItem_Exit.Size = new System.Drawing.Size(98, 22);
-            this.toolStripMenuItem_Exit.Text = "終了";
+            this.toolStripMenuItem_Exit.Size = new System.Drawing.Size(111, 22);
+            this.toolStripMenuItem_Exit.Text = "(&E)xit";
             this.contextMenuStrip1.ResumeLayout(false);
 
         }

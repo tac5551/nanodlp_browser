@@ -20,11 +20,23 @@
         public readonly NOTIFY.NotificationManager notificationManager = new NOTIFY.NotificationManager();
         private DispatcherTimer _timer;
         private MainWindow wnd;
+        private System.Threading.Mutex mutex = new System.Threading.Mutex(false, "NanoDLPBrowser");
+
         /// <summary>
         /// NotifyIconWrapper クラス を生成、初期化します。
         /// </summary>
         public NotifyIconWrapper()
         {
+            // ミューテックスの所有権を要求
+            if (!mutex.WaitOne(0, false))
+            {
+                // 既に起動しているため終了させる
+                MessageBox.Show("NanoDLPBrowser is already running", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                mutex.Close();
+                mutex = null;
+                Application.Current.Shutdown();
+            }
+
             // コンポーネントの初期化
             this.InitializeComponent();
 
@@ -58,6 +70,11 @@
         }
 
         ~NotifyIconWrapper() {
+            if (mutex != null)
+            {
+                mutex.ReleaseMutex();
+                mutex.Close();
+            }
             _timer.Stop();
         }
 
@@ -73,6 +90,10 @@
                     if (each.UUID == device.UniqueDeviceName)
                     {
                         flag = false;
+                    }
+                    if(each.Enable== false)
+                    {
+                        each.Enable = true;
                     }
                 }
                 if (flag)
