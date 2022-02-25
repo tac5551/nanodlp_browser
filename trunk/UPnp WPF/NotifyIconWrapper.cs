@@ -1,14 +1,20 @@
 ﻿namespace UPnp_WPF
 {
+    using NanoDLP_Browser.Properties;
     using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Configuration;
+    using System.IO;
     using System.Net.Http;
+    using System.Threading;
     using System.Windows;
     using System.Windows.Threading;
     using UPNPLib;
     using NOTIFY = Notifications.Wpf;
+
 
     /// <summary>
     /// タスクトレイ通知アイコン
@@ -22,11 +28,81 @@
         private MainWindow wnd;
         private System.Threading.Mutex mutex = new System.Threading.Mutex(false, "NanoDLPBrowser");
 
+        string fileName = @"sample.xml";
+
+        public void SaveToXML(string fileName, List<Dto> saveDtos)
+        {
+            //XmlSerializerオブジェクトを作成
+            //オブジェクトの型を指定する
+            System.Xml.Serialization.XmlSerializer serializer =
+                new System.Xml.Serialization.XmlSerializer(typeof(List<Dto>));
+            //書き込むファイルを開く（UTF-8 BOM無し）
+            System.IO.StreamWriter sw = new System.IO.StreamWriter(
+                fileName, false, new System.Text.UTF8Encoding(false));
+            //シリアル化し、XMLファイルに保存する
+            serializer.Serialize(sw, saveDtos);
+            //ファイルを閉じる
+            sw.Close();
+
+        }
+
+        public List<Dto> LoadFromXML(string fileName)
+        {
+            //XmlSerializerオブジェクトを作成
+            System.Xml.Serialization.XmlSerializer serializer =
+                new System.Xml.Serialization.XmlSerializer(typeof(List<Dto>));
+            //読み込むファイルを開く
+            System.IO.StreamReader sr = new System.IO.StreamReader(
+                fileName, new System.Text.UTF8Encoding(false));
+            //XMLファイルから読み込み、逆シリアル化する
+            List<Dto> obj = (List<Dto>)serializer.Deserialize(sr);
+            //ファイルを閉じる
+            sr.Close();
+            return obj;
+        }
+
+        public void SaveFile(string fileName)
+        {
+            List<Dto> saveDtos = new List<Dto>();
+            foreach (var each in _dtos)
+            {
+                if (each.ManualAdd == true)
+                {
+                    saveDtos.Add(each);
+                }
+            }
+
+            SaveToXML(fileName, saveDtos);
+        }
+
+        public void LoadFile(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                List<Dto> saveDtos = LoadFromXML(fileName);
+
+                foreach (var each in saveDtos)
+                {
+                    _dtos.Add(new Dto
+                    {
+                        Name = each.Name,
+                        URI = each.URI,
+                        UUID = each.UUID,
+                        Discription = each.Discription,
+                        ManualAdd = true,
+                        Enable = true,
+                    });
+                }
+            }
+        }
+
         /// <summary>
         /// NotifyIconWrapper クラス を生成、初期化します。
         /// </summary>
         public NotifyIconWrapper()
         {
+            LoadFile(fileName);
+
             // ミューテックスの所有権を要求
             if (!mutex.WaitOne(0, false))
             {
@@ -69,7 +145,8 @@
             wnd.Show();
         }
 
-        ~NotifyIconWrapper() {
+        ~NotifyIconWrapper()
+        {
             if (mutex != null)
             {
                 mutex.ReleaseMutex();
@@ -91,7 +168,7 @@
                     {
                         flag = false;
                     }
-                    if(each.Enable== false)
+                    if (each.Enable == false)
                     {
                         each.Enable = true;
                     }
@@ -125,7 +202,8 @@
                 if (wnd != null) wnd.MyListBox.Items.Refresh();
             }
         }
-        public void DeviceRemoved(string UUID){
+        public void DeviceRemoved(string UUID)
+        {
             var content = new NOTIFY.NotificationContent
             {
                 Type = NOTIFY.NotificationType.Information,
@@ -138,82 +216,91 @@
                 content, expirationTime: TimeSpan.FromSeconds(5));
         }
 
-
+        private bool exec = false;
         // タイマメソッド
         private async void MyTimerMethod(object sender, EventArgs e)
         {
-
-            using (var client = new HttpClient())
+            exec = true;
+            try
             {
-                foreach (Dto each in _dtos)
+                using (var client = new HttpClient())
                 {
-                    try
+                    foreach (Dto each in _dtos)
                     {
-                        if (each.Enable)
+                        try
                         {
-                            NanoDLPStatus stat = new NanoDLPStatus();
-                            var result = await client.GetAsync(each.URI + "" + "status");
-                            var json = await result.Content.ReadAsStringAsync();
-                            // インスタンス person にデシリアライズ
-                            stat = JsonConvert.DeserializeObject<NanoDLPStatus>(json);
-                            if (stat.Printing == true)
-                            {
-                                System.Diagnostics.Debug.Write("Plate : " + stat.Path);
-                                System.Diagnostics.Debug.Write(" Layer : " + stat.LayerID + " of " + stat.LayersCount);
-                                System.Diagnostics.Debug.Write(" RemainingTime : " + stat.getRemainingTime + " of " + stat.getTotalTime + " min");
-                                System.Diagnostics.Debug.Write(" Height : " + Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm");
-                                System.Diagnostics.Debug.Write(" ETA : " + stat.getETA);
 
-                                System.Diagnostics.Debug.WriteLine("");
-                                each.visibleStop = true;
-                                each.visibleMove = false;
-                                each.Plate = stat.Path;
-                                each.Remaining = stat.getRemainingTime + " of " + stat.getTotalTime + " min";
-                                each.Layer = stat.LayerID + " of " + stat.LayersCount;
-                                each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
-                                each.ETA = stat.getETA;
-                                each.Printing = stat.Printing;
-                                if (wnd != null) wnd.MyListBox.Items.Refresh();
-                            }
-                            // NOTE : 印刷終了
-                            else if (stat.Printing != each.Printing && stat.Printing == false)
+                            if (each.Enable)
                             {
-                                var content = new NOTIFY.NotificationContent
+                                NanoDLPStatus stat = new NanoDLPStatus();
+                                var result = await client.GetAsync(each.URI + "" + "status");
+                                var json = await result.Content.ReadAsStringAsync();
+                                // インスタンス person にデシリアライズ
+                                stat = JsonConvert.DeserializeObject<NanoDLPStatus>(json);
+                                if (stat.Printing == true)
                                 {
-                                    Type = NOTIFY.NotificationType.Information,
-                                    Title = "[" + each.Name + "]",
-                                    Message = "The plate \"" + each.Plate + "\" is printing done.",
-                                };
+                                    System.Diagnostics.Debug.Write("Plate : " + stat.Path);
+                                    System.Diagnostics.Debug.Write(" Layer : " + stat.LayerID + " of " + stat.LayersCount);
+                                    System.Diagnostics.Debug.Write(" RemainingTime : " + stat.getRemainingTime + " of " + stat.getTotalTime + " min");
+                                    System.Diagnostics.Debug.Write(" Height : " + Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm");
+                                    System.Diagnostics.Debug.Write(" ETA : " + stat.getETA);
 
-                                // メッセージを2秒表示
-                                notificationManager.Show(
-                                    content, expirationTime: TimeSpan.FromSeconds(5));
-                                each.Printing = stat.Printing;
+                                    System.Diagnostics.Debug.WriteLine("");
+                                    each.visibleStop = true;
+                                    each.visibleMove = false;
+                                    each.Plate = stat.Path;
+                                    each.Remaining = stat.getRemainingTime + " of " + stat.getTotalTime + " min";
+                                    each.Layer = stat.LayerID + " of " + stat.LayersCount;
+                                    each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
+                                    each.ETA = stat.getETA;
+                                    each.Printing = stat.Printing;
+                                    if (wnd != null) wnd.MyListBox.Items.Refresh();
+                                }
+                                // NOTE : 印刷終了
+                                else if (stat.Printing != each.Printing && stat.Printing == false)
+                                {
+                                    var content = new NOTIFY.NotificationContent
+                                    {
+                                        Type = NOTIFY.NotificationType.Information,
+                                        Title = "[" + each.Name + "]",
+                                        Message = "The plate \"" + each.Plate + "\" is printing done.",
+                                    };
+
+                                    // メッセージを2秒表示
+                                    notificationManager.Show(
+                                        content, expirationTime: TimeSpan.FromSeconds(5));
+                                    each.Printing = stat.Printing;
+                                }
+                                else
+                                {
+                                    each.visibleStop = false;
+                                    each.visibleMove = true;
+                                    each.Plate = "";
+                                    each.Remaining = "";
+                                    each.Layer = "";
+                                    each.Height = "";
+                                    each.ETA = "";
+                                    each.Printing = stat.Printing;
+                                    if (wnd != null) wnd.MyListBox.Items.Refresh();
+                                }
                             }
-                            else
-                            {
-                                each.visibleStop = false;
-                                each.visibleMove = true;
-                                each.Plate = "";
-                                each.Remaining = "";
-                                each.Layer = "";
-                                each.Height = "";
-                                each.ETA = "";
-                                each.Printing = stat.Printing;
-                                if (wnd != null) wnd.MyListBox.Items.Refresh();
-                            }
+                        }
+                        catch
+                        {
+                            if (!each.ManualAdd) each.Enable = false;
                         }
 
                     }
-                    catch
-                    {
-                        each.Enable = false;
-                    }
                 }
             }
+            catch
+            {
+                
+            }
 
-
+            exec = false;
         }
+
 
         public void SearchCompleted()
         {
@@ -242,7 +329,8 @@
         /// <param name="e">イベントデータ</param>
         private void toolStripMenuItem_Open_Click(object sender, EventArgs e)
         {
-            if (!wnd.IsLoaded) {
+            if (!wnd.IsLoaded)
+            {
                 wnd = new MainWindow();
                 wnd.setItemsSource(_dtos);
                 wnd.Show();
