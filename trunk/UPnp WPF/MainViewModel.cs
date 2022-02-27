@@ -17,6 +17,11 @@ namespace UPnp_WPF
     [XmlRoot("Dto")]
     public class Dto
     {
+        public Dto() {
+            LayerMax = 100;
+            LayerNow = 0;
+            Printing = false;
+        }
         [XmlElement("name")]
         public string Name { get; set; }
         [XmlElement("URI")]
@@ -38,7 +43,10 @@ namespace UPnp_WPF
         public string Plate { get; set; }
         [XmlIgnore] 
         public bool Printing { get; set; }
-
+        [XmlIgnore]
+        public int LayerNow { get; set; }
+        [XmlIgnore]
+        public int LayerMax { get; set; }
         //public UPnPDevice Device { get; set; }
         [XmlIgnore] 
         public bool visibleStop { get; set; }

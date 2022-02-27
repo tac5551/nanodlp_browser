@@ -254,6 +254,8 @@
                                     each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
                                     each.ETA = stat.getETA;
                                     each.Printing = stat.Printing;
+                                    each.LayerMax = (int)stat.LayersCount;
+                                    each.LayerNow = (int)stat.LayerID;
                                     if (wnd != null) wnd.MyListBox.Items.Refresh();
                                 }
                                 // NOTE : 印刷終了
@@ -281,6 +283,8 @@
                                     each.Height = "";
                                     each.ETA = "";
                                     each.Printing = stat.Printing;
+                                    each.LayerMax = 100;
+                                    each.LayerNow = 0;
                                     if (wnd != null) wnd.MyListBox.Items.Refresh();
                                 }
                             }
@@ -288,6 +292,8 @@
                         catch
                         {
                             if (!each.ManualAdd) each.Enable = false;
+                            each.LayerMax = 100;
+                            each.LayerNow = 0;
                         }
 
                     }

@@ -30,35 +30,37 @@
                                     <ColumnDefinition Width="300"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="40"></RowDefinition>
-                                    <RowDefinition Height="40"></RowDefinition>
-                                    <RowDefinition Height="40"></RowDefinition>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                    <RowDefinition Height="30"></RowDefinition>
+                                    <RowDefinition Height="30"></RowDefinition>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0"  Text="{Binding Name}"  DockPanel.Dock="Left" Margin="10" Background="AliceBlue" />
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding URI}" DockPanel.Dock="Left" Margin="10 " Background="AliceBlue" />
-                                <TextBlock Grid.Row="0" Grid.Column="2"  Text="{Binding Discription}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
-                                <TextBlock Grid.Row="2" Grid.Column="0"  Text="{Binding Layer}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
-                                <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Height}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
-                                <TextBlock Grid.Row="2" Grid.Column="2"  Text="{Binding Remaining}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
-                                <TextBlock Grid.Row="1" Grid.Column="2"  Text="{Binding ETA}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
-                                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"  Text="{Binding Plate}" DockPanel.Dock="Left" Margin="10" Background="AliceBlue"  />
+                                <TextBlock Grid.Row="0" Grid.Column="0"  Text="{Binding Name}"  DockPanel.Dock="Left" Margin="5" Background="AliceBlue" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding URI}" DockPanel.Dock="Left" Margin="5 " Background="AliceBlue" />
+                                <TextBlock Grid.Row="0" Grid.Column="2"  Text="{Binding Discription}" DockPanel.Dock="Left" Margin="5" Background="AliceBlue"  />
+                                <TextBlock Grid.Row="2" Grid.Column="0"  Text="{Binding Layer}" DockPanel.Dock="Left" Margin="5" Background="AliceBlue"  />
+                                <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Height}" DockPanel.Dock="Left" Margin="5" Background="AliceBlue"  />
+                                <TextBlock Grid.Row="2" Grid.Column="2"  Text="{Binding Remaining}" DockPanel.Dock="Left" Margin="5" Background="AliceBlue"  />
+                                <TextBlock Grid.Row="1" Grid.Column="2"  Text="{Binding ETA}" DockPanel.Dock="Left" Margin="5" Background="AliceBlue"  />
+                                <ProgressBar Grid.Row="3" Grid.ColumnSpan="3" Maximum="{Binding LayerMax}" Value="{Binding LayerNow}"  Margin="5"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"  Text="{Binding Plate}" DockPanel.Dock="Left" Margin="5" Background="AliceBlue"  />
                                 <DockPanel LastChildFill="false" Grid.Row="0" Grid.RowSpan="1" Grid.Column="4">
-                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="top" Content="move top" Click="moveTop_Click"/>
-                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="bottom" Content="move bottom" Click="moveBottom_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,5,0,5" x:Name="top" Content="move top" Click="moveTop_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,5,0,5" x:Name="bottom" Content="move bottom" Click="moveBottom_Click"/>
 
 
                                 </DockPanel>
                                 <DockPanel LastChildFill="false" Grid.Row="2" Grid.RowSpan="1" Grid.Column="4">
 
-                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getStopVisibility}" Margin="0,10,0,10" x:Name="stop" Content="stop" Click="PrintStop_Click"/>
-                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="pause" Content="pause" Click="PrintPause_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getStopVisibility}" Margin="0,5,0,5" x:Name="stop" Content="stop" Click="PrintStop_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getMoveVisibility}" Margin="0,5,0,5" x:Name="pause" Content="pause" Click="PrintPause_Click"/>
 
                                 </DockPanel>
                                 <DockPanel LastChildFill="false" Grid.Row="2" Grid.RowSpan="1" Grid.Column="4">
 
-                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getStopVisibility}" Margin="0,10,0,10" x:Name="fstop" Content="force stop" Click="forceStop_Click"/>
-                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="shutdown" Content="shutdown" Click="Shutdown_Click"/>
-                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,10,0,10" x:Name="reboot" Content="restart" Click="Reboot_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getStopSize}" Visibility="{Binding getStopVisibility}" Margin="0,5,0,5" x:Name="fstop" Content="force stop" Click="forceStop_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,5,0,5" x:Name="shutdown" Content="shutdown" Click="Shutdown_Click"/>
+                                    <Button DockPanel.Dock="Left" Width="{Binding getMoveSize}" Visibility="{Binding getMoveVisibility}" Margin="0,5,0,5" x:Name="reboot" Content="restart" Click="Reboot_Click"/>
                                 </DockPanel>
                             </Grid>
                         </StackPanel>
