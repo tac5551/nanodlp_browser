@@ -1,4 +1,4 @@
-﻿namespace UPnp_WPF
+﻿namespace NanoDLP_Browser
 {
     using NanoDLP_Browser.Properties;
     using Newtonsoft.Json;

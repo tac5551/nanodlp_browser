@@ -1,4 +1,4 @@
-﻿namespace UPnp_WPF
+﻿namespace NanoDLP_Browser
 {
     partial class NotifyIconWrapper
     {

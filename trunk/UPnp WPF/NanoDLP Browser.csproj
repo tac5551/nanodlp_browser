@@ -113,6 +113,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="AddMachine.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddMachine.Designer.cs">
+      <DependentUpon>AddMachine.cs</DependentUpon>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

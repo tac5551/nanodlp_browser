@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UPnp_WPF
+namespace NanoDLP_Browser
 {
     using System.Collections.Generic;
     using System.Configuration;

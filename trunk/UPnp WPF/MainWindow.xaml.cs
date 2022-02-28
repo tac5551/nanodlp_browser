@@ -20,7 +20,7 @@ using UPNPLib;
 using Newtonsoft.Json;
 
 
-namespace UPnp_WPF
+namespace NanoDLP_Browser
 {
 
 

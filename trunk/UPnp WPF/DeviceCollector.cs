@@ -3,7 +3,7 @@ using UPNPLib;
 using System.Runtime.InteropServices;
 
 
-namespace UPnp_WPF
+namespace NanoDLP_Browser
 {
     //
     // Declare the COM Interface for callback from the search
