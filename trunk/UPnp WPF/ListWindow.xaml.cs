@@ -30,32 +30,19 @@ namespace NanoDLP_Browser
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        public void setItemsSource(ObservableCollection<Dto> dtos) {
+        public Dtos _dtos =new Dtos();
+        public void setItemsSource(Dtos dtos) {
             MyListBox.ItemsSource = dtos;
             MyListBox.DataContext = dtos;
+            _dtos = dtos;
         }
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
- 
 
-        private void MyListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            ListBox listBox = (ListBox)sender;
-            // 選択中のアイテムの ListBoxItem を取得
-            var listBoxItem = (ListBoxItem)MyListBox.ItemContainerGenerator.ContainerFromItem(MyListBox.SelectedItem);
-            // ヒットテストでアイテム上
-            if (listBoxItem != null)
-            {
-                Dto dto = listBoxItem.Content as Dto;
-                var uri = dto.URI;
-                // 選択中のアイテム上でダブルクリックされたとき
-                System.Diagnostics.Process.Start(uri);
-            }
-        }
 
         private T FindParent<T>(DependencyObject d) where T : DependencyObject
         {
@@ -196,6 +183,86 @@ namespace NanoDLP_Browser
             catch { }
         }
 
+
+        private void MyListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+            // 選択中のアイテムの ListBoxItem を取得
+            var listBoxItem = (ListBoxItem)MyListBox.ItemContainerGenerator.ContainerFromItem(MyListBox.SelectedItem);
+            // ヒットテストでアイテム上
+            if (listBoxItem != null)
+            {
+                Dto dto = listBoxItem.Content as Dto;
+                var uri = dto.URI;
+                // 選択中のアイテム上でダブルクリックされたとき
+                System.Diagnostics.Process.Start(uri);
+            }
+        }
+        AddMachine addform;
+        private void MyListBox_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+            // 選択中のアイテムの ListBoxItem を取得
+            var listBoxItem = (ListBoxItem)MyListBox.ItemContainerGenerator.ContainerFromItem(MyListBox.SelectedItem);
+            Dto dto = null;
+            // ヒットテストでアイテム上
+            if (listBoxItem != null)
+            {
+                dto = listBoxItem.Content as Dto;
+            }
+            addform = new AddMachine(this,dto);
+            addform.ShowDialog();
+
+        }
+
+        private void MyListBoxStack_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            StackPanel stackPanel = (StackPanel)sender;
+            var parent = stackPanel.Parent;
+        }
+
+        private void MyListBox_EditClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = (MenuItem)sender;
+            // 選択中のアイテムの ListBoxItem を取得
+            var listBoxItem = (ListBoxItem)MyListBox.ItemContainerGenerator.ContainerFromItem(MyListBox.SelectedItem);
+            Dto dto = null;
+            // ヒットテストでアイテム上
+            if (listBoxItem != null)
+            {
+                dto = listBoxItem.Content as Dto;
+            }
+            if (dto!=null || dto.ManualAdd) {
+                addform = new AddMachine(this, dto);
+                addform.ShowDialog();
+            }
+        }
+
+        private void MyListBox_AddClick(object sender, RoutedEventArgs e)
+        {
+            Dto dto = null;
+            addform = new AddMachine(this, dto);
+            addform.ShowDialog();
+        }
+
+        private void Edit_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            Dto current = btn.DataContext as Dto;
+            addform = new AddMachine(this, current);
+            addform.ShowDialog();
+        }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = (Button)sender;
+            Dto current = btn.DataContext as Dto;
+            if (MessageBox.Show("Are you sure you want to delete printer?", "NanoDLP Browser", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+            {
+                _dtos.Remove(current);
+                FileIO.SaveFile(_dtos);
+            }
+        }
     }
 
 

@@ -109,7 +109,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
+    <Page Include="ListWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -124,9 +124,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DeviceCollector.cs" />
+    <Compile Include="Dtos.cs" />
+    <Compile Include="FileIO.cs" />
     <Compile Include="MainViewModel.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="ListWindow.xaml.cs">
+      <DependentUpon>ListWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -151,6 +153,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="AddMachine.resx">
+      <DependentUpon>AddMachine.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NotifyIconWrapper.resx">
       <DependentUpon>NotifyIconWrapper.cs</DependentUpon>
     </EmbeddedResource>
@@ -201,6 +206,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="delete.png" />
+    <Resource Include="edit.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

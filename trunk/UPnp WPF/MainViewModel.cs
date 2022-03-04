@@ -9,7 +9,9 @@ namespace NanoDLP_Browser
 {
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Drawing;
     using System.Windows;
+    using System.Windows.Media;
     using System.Xml.Serialization;
     using UPNPLib;
 
@@ -48,20 +50,65 @@ namespace NanoDLP_Browser
         [XmlIgnore]
         public int LayerMax { get; set; }
         //public UPnPDevice Device { get; set; }
-        [XmlIgnore] 
-        public bool visibleStop { get; set; }
 
-        [XmlIgnore] 
-        public bool visibleMove { get; set; }
         [XmlIgnore]
         public bool Enable { get; set; }
         [XmlIgnore]
         public bool ManualAdd { get; set; }
         [XmlIgnore]
-        public Visibility getMoveVisibility
+
+        public bool visibleStop {
+            get {
+                if (Printing)
+                {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+             }
+        }
+
+        [XmlIgnore]
+        public bool visibleMove
+        {
+            get
+            {
+                if (!Printing)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public SolidColorBrush getBgColor
+        {
+            get
+            {
+                if (Printing)
+                {
+                    return new SolidColorBrush(Colors.Lavender);
+                }
+                else if (ManualAdd) {
+                    return new SolidColorBrush(Colors.Ivory);
+                }
+                else
+                {
+                    return new SolidColorBrush(Colors.White);
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public Visibility getIdleButtonVisibility
         {
             get{
-                if (!visibleMove)
+                if (!Printing)
                 {
                     return Visibility.Hidden;
                 }
@@ -71,11 +118,11 @@ namespace NanoDLP_Browser
             }
         }
         [XmlIgnore]
-        public int getMoveSize
+        public int getIdleButtonSize
         {
             get
             {
-                if (!visibleMove)
+                if (!Printing)
                 {
                     return 0;
                 }
@@ -86,11 +133,11 @@ namespace NanoDLP_Browser
             }
         }
         [XmlIgnore]
-        public Visibility getStopVisibility
+        public Visibility getPrintingButtonVisibility
         {
             get
             {
-                if (!visibleStop)
+                if (Printing)
                 {
                     return Visibility.Hidden;
                 }
@@ -101,11 +148,11 @@ namespace NanoDLP_Browser
             }
         }
         [XmlIgnore]
-        public int getStopSize
+        public int getPrintingButtonSize
         {
             get
             {
-                if (!visibleStop)
+                if (Printing)
                 {
                     return 0;
                 }
@@ -114,6 +161,19 @@ namespace NanoDLP_Browser
                     return 100;
                 }
             }
+        }
+        public Visibility getEditVisibility 
+        { 
+            get {
+                if (ManualAdd)
+                {
+                    return Visibility.Visible;
+                }
+                else
+                {
+                    return Visibility.Hidden;
+                }
+            } 
         }
     }
 

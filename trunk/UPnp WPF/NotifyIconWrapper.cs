@@ -22,86 +22,18 @@
     public partial class NotifyIconWrapper : Component
     {
         private DeviceCollector _col;
-        public ObservableCollection<Dto> _dtos = new ObservableCollection<Dto>();
+        public Dtos _dtos = new Dtos();
         public readonly NOTIFY.NotificationManager notificationManager = new NOTIFY.NotificationManager();
         private DispatcherTimer _timer;
         private MainWindow wnd;
         private System.Threading.Mutex mutex = new System.Threading.Mutex(false, "NanoDLPBrowser");
-
-        string fileName = @"sample.xml";
-
-        public void SaveToXML(string fileName, List<Dto> saveDtos)
-        {
-            //XmlSerializerオブジェクトを作成
-            //オブジェクトの型を指定する
-            System.Xml.Serialization.XmlSerializer serializer =
-                new System.Xml.Serialization.XmlSerializer(typeof(List<Dto>));
-            //書き込むファイルを開く（UTF-8 BOM無し）
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(
-                fileName, false, new System.Text.UTF8Encoding(false));
-            //シリアル化し、XMLファイルに保存する
-            serializer.Serialize(sw, saveDtos);
-            //ファイルを閉じる
-            sw.Close();
-
-        }
-
-        public List<Dto> LoadFromXML(string fileName)
-        {
-            //XmlSerializerオブジェクトを作成
-            System.Xml.Serialization.XmlSerializer serializer =
-                new System.Xml.Serialization.XmlSerializer(typeof(List<Dto>));
-            //読み込むファイルを開く
-            System.IO.StreamReader sr = new System.IO.StreamReader(
-                fileName, new System.Text.UTF8Encoding(false));
-            //XMLファイルから読み込み、逆シリアル化する
-            List<Dto> obj = (List<Dto>)serializer.Deserialize(sr);
-            //ファイルを閉じる
-            sr.Close();
-            return obj;
-        }
-
-        public void SaveFile(string fileName)
-        {
-            List<Dto> saveDtos = new List<Dto>();
-            foreach (var each in _dtos)
-            {
-                if (each.ManualAdd == true)
-                {
-                    saveDtos.Add(each);
-                }
-            }
-
-            SaveToXML(fileName, saveDtos);
-        }
-
-        public void LoadFile(string fileName)
-        {
-            if (File.Exists(fileName))
-            {
-                List<Dto> saveDtos = LoadFromXML(fileName);
-
-                foreach (var each in saveDtos)
-                {
-                    _dtos.Add(new Dto
-                    {
-                        Name = each.Name,
-                        URI = each.URI,
-                        UUID = each.UUID,
-                        Discription = each.Discription,
-                        ManualAdd = true,
-                        Enable = true,
-                    });
-                }
-            }
-        }
 
         /// <summary>
         /// NotifyIconWrapper クラス を生成、初期化します。
         /// </summary>
         public NotifyIconWrapper()
         {
-            LoadFile(fileName);
+
 
             // ミューテックスの所有権を要求
             if (!mutex.WaitOne(0, false))
@@ -138,6 +70,8 @@
 
             // 画面が閉じられるときに、タイマを停止
             //this.Closing += new CancelEventHandler(StopTimer);
+            //_dtos.Clear();
+            FileIO.LoadFile(ref _dtos);
 
             // MainWindow を生成、表示
             wnd = new MainWindow();
@@ -181,8 +115,6 @@
                             Name = device.FriendlyName,
                             URI = device.PresentationURL,
                             Discription = device.ManufacturerName,
-                            visibleMove = true,
-                            visibleStop = false,
                             UUID = device.UniqueDeviceName,
                             Enable = true
                             //Device = device
@@ -216,11 +148,9 @@
                 content, expirationTime: TimeSpan.FromSeconds(5));
         }
 
-        private bool exec = false;
         // タイマメソッド
         private async void MyTimerMethod(object sender, EventArgs e)
         {
-            exec = true;
             try
             {
                 using (var client = new HttpClient())
@@ -246,8 +176,6 @@
                                     System.Diagnostics.Debug.Write(" ETA : " + stat.getETA);
 
                                     System.Diagnostics.Debug.WriteLine("");
-                                    each.visibleStop = true;
-                                    each.visibleMove = false;
                                     each.Plate = stat.Path;
                                     each.Remaining = stat.getRemainingTime + " of " + stat.getTotalTime + " min";
                                     each.Layer = stat.LayerID + " of " + stat.LayersCount;
@@ -275,8 +203,6 @@
                                 }
                                 else
                                 {
-                                    each.visibleStop = false;
-                                    each.visibleMove = true;
                                     each.Plate = "";
                                     each.Remaining = "";
                                     each.Layer = "";
@@ -303,8 +229,6 @@
             {
                 
             }
-
-            exec = false;
         }
 
 
