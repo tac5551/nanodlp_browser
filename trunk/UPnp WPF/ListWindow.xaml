@@ -90,8 +90,8 @@
                             </DockPanel>
                             <DockPanel LastChildFill="false" Grid.Row="2" Grid.RowSpan="1" Grid.Column="4">
                                 <Button DockPanel.Dock="Left" Width="{Binding getPrintingButtonSize}" Visibility="{Binding getPrintingButtonVisibility}" x:Name="fstop" Content="Force Stop" Click="forceStop_Click" Style="{StaticResource ResourceKey=FlatButton}"/>
-                                <Button DockPanel.Dock="Left" Width="{Binding getIdleButtonSize}" Visibility="{Binding getMoveVisibility}" x:Name="shutdown" Content="Shutdown" Click="Shutdown_Click" Style="{StaticResource ResourceKey=FlatButton}"/>
-                                <Button DockPanel.Dock="Left" Width="{Binding getIdleButtonSize}" Visibility="{Binding getMoveVisibility}" x:Name="reboot" Content="Restart" Click="Reboot_Click" Style="{StaticResource ResourceKey=FlatButton}"/>
+                                <Button DockPanel.Dock="Left" Width="{Binding getIdleButtonSize}" Visibility="{Binding getIdleButtonVisibility}" x:Name="shutdown" Content="Shutdown" Click="Shutdown_Click" Style="{StaticResource ResourceKey=FlatButton}"/>
+                                <Button DockPanel.Dock="Left" Width="{Binding getIdleButtonSize}" Visibility="{Binding getIdleButtonVisibility}" x:Name="reboot" Content="Restart" Click="Reboot_Click" Style="{StaticResource ResourceKey=FlatButton}"/>
                             </DockPanel>
                         </Grid>
                     </StackPanel>

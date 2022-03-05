@@ -108,7 +108,7 @@ namespace NanoDLP_Browser
         public Visibility getIdleButtonVisibility
         {
             get{
-                if (!Printing)
+                if (Printing)
                 {
                     return Visibility.Hidden;
                 }
@@ -122,7 +122,7 @@ namespace NanoDLP_Browser
         {
             get
             {
-                if (!Printing)
+                if (Printing)
                 {
                     return 0;
                 }
@@ -137,7 +137,7 @@ namespace NanoDLP_Browser
         {
             get
             {
-                if (Printing)
+                if (!Printing)
                 {
                     return Visibility.Hidden;
                 }
@@ -152,7 +152,7 @@ namespace NanoDLP_Browser
         {
             get
             {
-                if (Printing)
+                if (!Printing)
                 {
                     return 0;
                 }
