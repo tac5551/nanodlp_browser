@@ -65,15 +65,10 @@ namespace NanoDLP_Browser
 
                 foreach (var each in saveDtos)
                 {
-                    _dtos.Add(new Dto
-                    {
-                        Name = each.Name,
-                        URI = each.URI,
-                        UUID = each.UUID,
-                        Discription = each.Discription,
-                        ManualAdd = true,
-                        Enable = true,
-                    });
+                    each.ManualAdd = true;
+                    each.Enable = true;
+
+                    _dtos.Add(each) ;
                 }
             }
         }

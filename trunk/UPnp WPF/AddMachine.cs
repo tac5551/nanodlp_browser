@@ -36,6 +36,13 @@ namespace NanoDLP_Browser
             this.textBox1.Text = _dto.Name;
             this.textBox2.Text = _dto.URI;
             this.textBox3.Text = _dto.Discription;
+            if (_dto.isOctprint)
+            {
+                this.radioButton2.Checked = true;
+            }
+            else {
+                this.radioButton1.Checked = true;
+            }
 
         }
 
@@ -45,6 +52,12 @@ namespace NanoDLP_Browser
             _dto.URI = this.textBox2.Text;
             _dto.Discription = this.textBox3.Text;
             _dto.UUID = _dto.Discription;
+            if (this.radioButton2.Checked == true){
+                _dto.isOctprint = true;
+            }
+            else {
+                _dto.isOctprint = false;
+            }
             if (_new)
             {
                 _parent._dtos.Add(_dto);

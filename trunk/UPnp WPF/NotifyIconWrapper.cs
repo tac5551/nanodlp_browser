@@ -8,6 +8,7 @@
     using System.ComponentModel;
     using System.Configuration;
     using System.IO;
+    using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Windows;
@@ -162,60 +163,116 @@
 
                             if (each.Enable)
                             {
-                                NanoDLPStatus stat = new NanoDLPStatus();
-                                var result = await client.GetAsync(each.URI + "" + "status");
-                                var json = await result.Content.ReadAsStringAsync();
-                                // インスタンス person にデシリアライズ
-                                stat = JsonConvert.DeserializeObject<NanoDLPStatus>(json);
-                                if (stat.Printing == true)
-                                {
-                                    System.Diagnostics.Debug.Write("Plate : " + stat.Path);
-                                    System.Diagnostics.Debug.Write(" Layer : " + stat.LayerID + " of " + stat.LayersCount);
-                                    System.Diagnostics.Debug.Write(" RemainingTime : " + stat.getRemainingTime + " of " + stat.getTotalTime + " min");
-                                    System.Diagnostics.Debug.Write(" Height : " + Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm");
-                                    System.Diagnostics.Debug.Write(" ETA : " + stat.getETA);
-
-                                    System.Diagnostics.Debug.WriteLine("");
-                                    each.Plate = stat.Path;
-                                    each.Remaining = stat.getRemainingTime + " of " + stat.getTotalTime + " min";
-                                    each.Layer = stat.LayerID + " of " + stat.LayersCount;
-                                    each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
-                                    each.ETA = stat.getETA;
-                                    each.Printing = stat.Printing;
-                                    each.LayerMax = (int)stat.LayersCount;
-                                    each.LayerNow = (int)stat.LayerID;
-                                    if (wnd != null) wnd.MyListBox.Items.Refresh();
-                                }
-                                // NOTE : 印刷終了
-                                else if (stat.Printing != each.Printing && stat.Printing == false)
-                                {
-                                    var content = new NOTIFY.NotificationContent
+                                if (!each.isOctprint) {
+                                    NanoDLPStatus stat = new NanoDLPStatus();
+                                    var result = await client.GetAsync(each.URI + "" + "/status");
+                                    var json = await result.Content.ReadAsStringAsync();
+                                    // インスタンス person にデシリアライズ
+                                    stat = JsonConvert.DeserializeObject<NanoDLPStatus>(json);
+                                    if (stat.Printing == true)
                                     {
-                                        Type = NOTIFY.NotificationType.Information,
-                                        Title = "[" + each.Name + "]",
-                                        Message = "The plate \"" + each.Plate + "\" is printing done.",
-                                    };
+                                        System.Diagnostics.Debug.Write("Plate : " + stat.Path);
+                                        System.Diagnostics.Debug.Write(" Layer : " + stat.LayerID + " of " + stat.LayersCount);
+                                        System.Diagnostics.Debug.Write(" RemainingTime : " + stat.getRemainingTime + " of " + stat.getTotalTime + " min");
+                                        System.Diagnostics.Debug.Write(" Height : " + Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm");
+                                        System.Diagnostics.Debug.Write(" ETA : " + stat.getETA);
 
-                                    // メッセージを2秒表示
-                                    notificationManager.Show(
-                                        content, expirationTime: TimeSpan.FromSeconds(5));
-                                    each.Printing = stat.Printing;
+                                        System.Diagnostics.Debug.WriteLine("");
+                                        each.Plate = stat.Path;
+                                        each.Remaining = stat.getRemainingTime + " of " + stat.getTotalTime + " min";
+                                        each.Layer = stat.LayerID + " of " + stat.LayersCount;
+                                        each.Height = Math.Round(stat.getCurrentHeight, 1) + " of " + Math.Round(stat.PlateHeight, 1) + " mm";
+                                        each.ETA = stat.getETA;
+                                        each.Printing = stat.Printing;
+                                        each.LayerMax = (int)stat.LayersCount;
+                                        each.LayerNow = (int)stat.LayerID;
+                                        if (wnd != null) wnd.MyListBox.Items.Refresh();
+                                    }
+                                    // NOTE : 印刷終了
+                                    else if (stat.Printing != each.Printing && stat.Printing == false)
+                                    {
+                                        var content = new NOTIFY.NotificationContent
+                                        {
+                                            Type = NOTIFY.NotificationType.Information,
+                                            Title = "[" + each.Name + "]",
+                                            Message = "The plate \"" + each.Plate + "\" is printing done.",
+                                        };
+
+                                        // メッセージを2秒表示
+                                        notificationManager.Show(
+                                            content, expirationTime: TimeSpan.FromSeconds(5));
+                                        each.Printing = stat.Printing;
+                                    }
+                                    else
+                                    {
+                                        each.Plate = "";
+                                        each.Remaining = "";
+                                        each.Layer = "";
+                                        each.Height = "";
+                                        each.ETA = "";
+                                        each.Printing = stat.Printing;
+                                        each.LayerMax = 100;
+                                        each.LayerNow = 0;
+                                        if (wnd != null) wnd.MyListBox.Items.Refresh();
+                                    }
                                 }
-                                else
+                                else if (each.isOctprint)
                                 {
-                                    each.Plate = "";
-                                    each.Remaining = "";
-                                    each.Layer = "";
-                                    each.Height = "";
-                                    each.ETA = "";
-                                    each.Printing = stat.Printing;
-                                    each.LayerMax = 100;
-                                    each.LayerNow = 0;
+                                    var parameters = new Dictionary<string, string>()
+                                    {
+                                        { "Content-Type", "application/json" },
+                                        { "X-Api-Key", "2BA8A606462B48D3980EF8C22162C409" },
+                                    };
+                                    //var content = new FormUrlEncodedContent(parameters);
+
+                                    //HttpRequestMessage request = new HttpRequestMessage();
+                                    //request.RequestUri = new Uri(each.URI + "/" + "api/job");
+                                    //request.Content = content;
+
+
+                                    //request.Method =HttpMethod.Post;
+
+                                    //// リクエストを送信し、その結果を取得
+                                    //var response = await client.SendAsync(request);
+                                    //// 取得した結果をstring形式で返す
+                                    //var json = await response.Content.ReadAsStringAsync();
+                                    WebRequest request = WebRequest.Create(each.URI + "/" + "api/job");
+                                    request.ContentType = "application/json";
+                                    //request.Headers.Add("X-Api-key: " + App.settings.API_key);
+                                    request.Headers.Add("X-Api-key: 2BA8A606462B48D3980EF8C22162C409");
+                                    request.Proxy = null;
+                                    request.Method = "GET";
+
+                                    WebResponse response = request.GetResponse();
+                                    Stream dataStream = response.GetResponseStream();
+                                    StreamReader reader = new StreamReader(dataStream);
+                                    var json =  reader.ReadToEnd() as string;
+
+                                    jobMain stat = new jobMain();
+                                    stat = JsonConvert.DeserializeObject<jobMain>(json);
+                                    if (stat.state == "Printing")
+                                    {
+                                        each.Printing = true;
+                                        each.Plate = stat.job.file.name;
+                                        each.Height  = "Print Time Left: "+ stat.progress.printTimeLeft/60 + " :"+ stat.progress.printTimeLeft % 60;
+                                        each.Layer= "Print Time: "+ stat.progress.printTime/60+" : " + stat.progress.printTime % 60;
+                                        each.Remaining = "Total Print Time : " + (int)(stat.job.averagePrintTime / 60) + " : "+ (int)(stat.job.averagePrintTime % 60) ;
+                                        each.ETA = "";
+
+                                        each.LayerMax = (int)stat.job.file.size;
+                                        each.LayerNow = (int)stat.progress.filepos;
+                                    }
+                                    else {
+                                        each.Printing = false;
+                                    }
                                     if (wnd != null) wnd.MyListBox.Items.Refresh();
                                 }
+
+
                             }
+ 
                         }
-                        catch
+                        catch(Exception ex)
                         {
                             if (!each.ManualAdd) each.Enable = false;
                             each.LayerMax = 100;

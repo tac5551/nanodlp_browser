@@ -23,6 +23,7 @@ namespace NanoDLP_Browser
             LayerMax = 100;
             LayerNow = 0;
             Printing = false;
+            isOctprint = false;
         }
         [XmlElement("name")]
         public string Name { get; set; }
@@ -35,6 +36,8 @@ namespace NanoDLP_Browser
         [XmlIgnore]
         public string ETA { get; set; }
 
+        [XmlElement("isOctprint")]
+        public bool isOctprint { get; set; }
         [XmlIgnore] 
         public string Remaining { get; set; }
         [XmlIgnore]
@@ -51,9 +54,9 @@ namespace NanoDLP_Browser
         public int LayerMax { get; set; }
         //public UPnPDevice Device { get; set; }
 
-        [XmlIgnore]
+        [XmlElement("Enable")]
         public bool Enable { get; set; }
-        [XmlIgnore]
+        [XmlElement("ManualAdd")]
         public bool ManualAdd { get; set; }
         [XmlIgnore]
 

@@ -35,6 +35,24 @@ namespace NanoDLP_Browser
                 });
                 this.Add(new Dto()
                 {
+                    Name = "手動追加 oct 印刷中",
+                    URI = "http://127.0.0.1/",
+                    Discription = "hogehoge",
+                    ManualAdd = true,
+                    Printing = false,
+                    isOctprint = true,
+                });
+                this.Add(new Dto()
+                {
+                    Name = "手動追加 oct 印刷中",
+                    URI = "http://127.0.0.1/",
+                    Discription = "hogehoge",
+                    ManualAdd = true,
+                    Printing = true,
+                    isOctprint = true,
+                });
+                this.Add(new Dto()
+                {
                     Name = "UPnp",
                     URI = "http://127.0.0.1/",
                     Discription = "ホゲホゲ",
