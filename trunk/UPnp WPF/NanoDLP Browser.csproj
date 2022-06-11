@@ -140,6 +140,7 @@
     <Compile Include="NotifyIconWrapper.designer.cs">
       <DependentUpon>NotifyIconWrapper.cs</DependentUpon>
     </Compile>
+    <Compile Include="Nova3D.cs" />
     <Compile Include="OctStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

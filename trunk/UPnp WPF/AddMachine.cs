@@ -40,6 +40,10 @@ namespace NanoDLP_Browser
             {
                 this.radioButton2.Checked = true;
             }
+            else if (_dto.isNova3D)
+            {
+                this.radioButton3.Checked = true;
+            }
             else {
                 this.radioButton1.Checked = true;
             }
@@ -54,8 +58,16 @@ namespace NanoDLP_Browser
             _dto.UUID = _dto.Discription;
             if (this.radioButton2.Checked == true){
                 _dto.isOctprint = true;
+                _dto.isNova3D = false;
+            }
+            else if (this.radioButton3.Checked)
+            {
+                _dto.isNova3D = true;
+                _dto.isOctprint = true;
+
             }
             else {
+                _dto.isNova3D = false;
                 _dto.isOctprint = false;
             }
             if (_new)

@@ -35,7 +35,7 @@ namespace NanoDLP_Browser
                 });
                 this.Add(new Dto()
                 {
-                    Name = "手動追加 oct 印刷中",
+                    Name = "手動追加 oct 待機中",
                     URI = "http://127.0.0.1/",
                     Discription = "hogehoge",
                     ManualAdd = true,
@@ -51,6 +51,25 @@ namespace NanoDLP_Browser
                     Printing = true,
                     isOctprint = true,
                 });
+                this.Add(new Dto()
+                {
+                    Name = "手動追加 Nova 待機中",
+                    URI = "http://127.0.0.1/",
+                    Discription = "hogehoge",
+                    ManualAdd = true,
+                    Printing = false,
+                    isNova3D = true,
+                });
+                this.Add(new Dto()
+                {
+                    Name = "手動追加 Nova 印刷中",
+                    URI = "http://127.0.0.1/",
+                    Discription = "hogehoge",
+                    ManualAdd = true,
+                    Printing = true,
+                    isNova3D = true,
+                });
+
                 this.Add(new Dto()
                 {
                     Name = "UPnp",

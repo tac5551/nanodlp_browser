@@ -2,14 +2,17 @@
 {
     using NanoDLP_Browser.Properties;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Configuration;
+    using System.Diagnostics;
     using System.IO;
     using System.Net;
     using System.Net.Http;
+    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Windows;
     using System.Windows.Threading;
@@ -17,17 +20,67 @@
     using NOTIFY = Notifications.Wpf;
 
 
+
     /// <summary>
     /// タスクトレイ通知アイコン
     /// </summary>
     public partial class NotifyIconWrapper : Component
     {
+        // 外部プロセスのメイン・ウィンドウを起動するためのWin32 API
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll")]
+        private static extern bool IsIconic(IntPtr hWnd);
+        // ShowWindowAsync関数のパラメータに渡す定義値
+        private const int SW_RESTORE = 9;  // 画面を元の大きさに戻す
+
         private DeviceCollector _col;
         public Dtos _dtos = new Dtos();
         public readonly NOTIFY.NotificationManager notificationManager = new NOTIFY.NotificationManager();
         private DispatcherTimer _timer;
         private MainWindow wnd;
         private System.Threading.Mutex mutex = new System.Threading.Mutex(false, "NanoDLPBrowser");
+
+        // 外部プロセスのウィンドウを起動する
+        public static void WakeupWindow(IntPtr hWnd)
+        {
+            // メイン・ウィンドウが最小化されていれば元に戻す
+            if (IsIconic(hWnd))
+            {
+                ShowWindowAsync(hWnd, SW_RESTORE);
+            }
+
+            // メイン・ウィンドウを最前面に表示する
+            SetForegroundWindow(hWnd);
+        }
+
+        // 実行中の同じアプリケーションのプロセスを取得する
+        public static Process GetPreviousProcess()
+        {
+            Process curProcess = Process.GetCurrentProcess();
+            Process[] allProcesses = Process.GetProcessesByName(curProcess.ProcessName);
+
+            foreach (Process checkProcess in allProcesses)
+            {
+                // 自分自身のプロセスIDは無視する
+                if (checkProcess.Id != curProcess.Id)
+                {
+                    // プロセスのフルパス名を比較して同じアプリケーションか検証
+                    if (String.Compare(
+                        checkProcess.MainModule.FileName,
+                        curProcess.MainModule.FileName, true) == 0)
+                    {
+                        // 同じフルパス名のプロセスを取得
+                        return checkProcess;
+                    }
+                }
+            }
+
+            // 同じアプリケーションのプロセスが見つからない！
+            return null;
+        }
 
         /// <summary>
         /// NotifyIconWrapper クラス を生成、初期化します。
@@ -36,13 +89,19 @@
         {
 
 
-            // ミューテックスの所有権を要求
-            if (!mutex.WaitOne(0, false))
+            //// ミューテックスの所有権を要求
+            //if (!mutex.WaitOne(0, false))
+            //{
+            //    // 既に起動しているため終了させる
+            //    MessageBox.Show("NanoDLPBrowser is already running", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            //    mutex.Close();
+            //    mutex = null;
+            //    Application.Current.Shutdown();
+            //}
+            Process prevProcess = GetPreviousProcess();
+            if (prevProcess != null)
             {
-                // 既に起動しているため終了させる
-                MessageBox.Show("NanoDLPBrowser is already running", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                mutex.Close();
-                mutex = null;
+                WakeupWindow(prevProcess.MainWindowHandle);
                 Application.Current.Shutdown();
             }
 
@@ -163,12 +222,36 @@
 
                             if (each.Enable)
                             {
-                                if (!each.isOctprint) {
+                                //NanoDLP
+                                if (!each.isOctprint && !each.isNova3D) {
                                     NanoDLPStatus stat = new NanoDLPStatus();
-                                    var result = await client.GetAsync(each.URI + "" + "/status");
+
+                                    //try
+                                    //{
+                                    //    WebRequest request = WebRequest.Create(each.URI + "" + "status");
+
+                                    //    request.Proxy = null;
+                                    //    request.Method = "GET";
+
+                                    //    WebResponse response = request.GetResponse();
+                                    //    Stream dataStream = response.GetResponseStream();
+                                    //    StreamReader reader = new StreamReader(dataStream);
+                                    //    var json = reader.ReadToEnd() as string;
+
+                                    //}
+                                    //catch (Exception ex) {
+                                    //    System.Diagnostics.Debug.WriteLine(ex.Message);
+                                    //}
+                                    string URI = each.URI;
+                                    if (URI.Substring(URI.Length - 1) != "/") {
+                                        URI += "/";
+                                    }
+
+                                    var result = await client.GetAsync(URI + "" + "status");
                                     var json = await result.Content.ReadAsStringAsync();
                                     // インスタンス person にデシリアライズ
                                     stat = JsonConvert.DeserializeObject<NanoDLPStatus>(json);
+
                                     if (stat.Printing == true)
                                     {
                                         System.Diagnostics.Debug.Write("Plate : " + stat.Path);
@@ -216,26 +299,85 @@
                                         if (wnd != null) wnd.MyListBox.Items.Refresh();
                                     }
                                 }
+                                else if(each.isNova3D){
+
+                                    try {
+                                        string URI = each.URI;
+                                        if (URI.Substring(URI.Length - 1) == "/")
+                                        {
+                                            if (URI.Substring(URI.Length - 6) != ":8081/") {
+                                                URI = URI.Substring(0, URI.Length - 1) + ":8081/";
+                                            }
+                                        }
+
+                                        WebRequest request = WebRequest.Create(URI + "job/list/");
+
+                                        request.Proxy = null;
+                                        request.Method = "GET";
+
+                                        WebResponse response = request.GetResponse();
+                                        Stream dataStream = response.GetResponseStream();
+                                        StreamReader reader = new StreamReader(dataStream);
+                                        var json = reader.ReadToEnd() as string;
+
+                                        //よくわからない大かっこがあるので切り取り
+                                        json = json.Substring(1, json.Length - 1-3).Trim();
+
+                                        //json = "{";
+                                        //json += "\"currentSlice\" : 76,";
+                                        //json += "\"exposureTime\" : 1600,";
+                                        //json += "\"thickness\" : 0.029999999999999999,";
+                                        //json += "\"totalSlices\" : 77,";
+                                        //json += "\"jobName\" : \"焼き魚.CWS\",";
+                                        //json += "\"status\" : \"Printing\",";
+                                        //      json += "\"zliftDistance\" : 7.0,";
+                                        //json += "\"zliftSpeed\" : 120.0,";
+                                        //json += "\"lastNAverageSliceTime\" : 0,";
+                                        //json += "\"elapsedTime\" : 1666324";
+                                        //json += "}";
+                                        if (json != "null")
+                                        {
+                                            JObject Nova3Dstatus = JObject.Parse(json);
+
+                                            if (Nova3Dstatus["status"].ToString() == "Printing")
+                                            {
+                                                each.Printing = true;
+                                                each.Plate = Nova3Dstatus["jobName"].ToString();
+
+                                                each.LayerMax = ((int)Nova3Dstatus["totalSlices"]);
+                                                each.LayerNow = ((int)Nova3Dstatus["currentSlice"]);
+                                                double thickness = (double)((int)(((double)Nova3Dstatus["thickness"]) * 1000 + 0.9)) / 1000;
+                                                each.Height = Math.Round(((double)(((double)Nova3Dstatus["currentSlice"]) * thickness)), 1).ToString() + "mm";
+                                                each.Height += " / " + Math.Round(((double)(((double)Nova3Dstatus["totalSlices"]) * thickness)), 1).ToString() + "mm";
+                                                each.Layer = ((int)Nova3Dstatus["currentSlice"]) + " of " + ((int)Nova3Dstatus["totalSlices"]);
+                                                each.Remaining = "";
+                                                each.ETA = "";
+                                            }
+                                            else
+                                            {
+                                                each.Printing = false;
+                                                each.LayerMax = 100;
+                                                each.LayerNow = 0;
+                                            }
+                                        }
+                                        else {
+                                            each.Printing = false;
+                                            each.LayerMax = 100;
+                                            each.LayerNow = 0;
+                                        }
+                                    } catch (Exception ex) {
+                                        System.Diagnostics.Debug.WriteLine(ex.Message);
+                                        each.Printing = false;
+                                        each.LayerMax = 100;
+                                        each.LayerNow = 0;
+
+                                    }
+
+                                }
+                                // for Octprint
                                 else if (each.isOctprint)
                                 {
-                                    var parameters = new Dictionary<string, string>()
-                                    {
-                                        { "Content-Type", "application/json" },
-                                        { "X-Api-Key", "2BA8A606462B48D3980EF8C22162C409" },
-                                    };
-                                    //var content = new FormUrlEncodedContent(parameters);
 
-                                    //HttpRequestMessage request = new HttpRequestMessage();
-                                    //request.RequestUri = new Uri(each.URI + "/" + "api/job");
-                                    //request.Content = content;
-
-
-                                    //request.Method =HttpMethod.Post;
-
-                                    //// リクエストを送信し、その結果を取得
-                                    //var response = await client.SendAsync(request);
-                                    //// 取得した結果をstring形式で返す
-                                    //var json = await response.Content.ReadAsStringAsync();
                                     WebRequest request = WebRequest.Create(each.URI + "/" + "api/job");
                                     request.ContentType = "application/json";
                                     //request.Headers.Add("X-Api-key: " + App.settings.API_key);
@@ -246,7 +388,10 @@
                                     WebResponse response = request.GetResponse();
                                     Stream dataStream = response.GetResponseStream();
                                     StreamReader reader = new StreamReader(dataStream);
-                                    var json =  reader.ReadToEnd() as string;
+                                    var json = reader.ReadToEnd() as string;
+
+
+
 
                                     jobMain stat = new jobMain();
                                     stat = JsonConvert.DeserializeObject<jobMain>(json);
@@ -254,9 +399,9 @@
                                     {
                                         each.Printing = true;
                                         each.Plate = stat.job.file.name;
-                                        each.Height  = "Print Time Left: "+ stat.progress.printTimeLeft/60 + " :"+ stat.progress.printTimeLeft % 60;
-                                        each.Layer= "Print Time: "+ stat.progress.printTime/60+" : " + stat.progress.printTime % 60;
-                                        each.Remaining = "Total Print Time : " + (int)(stat.job.averagePrintTime / 60) + " : "+ (int)(stat.job.averagePrintTime % 60) ;
+                                        each.Height = "Print Time Left: " + stat.progress.printTimeLeft / 60 + " :" + stat.progress.printTimeLeft % 60;
+                                        each.Layer = "Print Time: " + stat.progress.printTime / 60 + " : " + stat.progress.printTime % 60;
+                                        each.Remaining = "Total Print Time : " + (int)(stat.job.averagePrintTime / 60) + " : " + (int)(stat.job.averagePrintTime % 60);
                                         each.ETA = "";
 
                                         each.LayerMax = (int)stat.job.file.size;

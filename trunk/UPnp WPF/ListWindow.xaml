@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NanoDLP_Browser"
         mc:Ignorable="d"
-        Title="NanoDLP Browser" Height="540.546" Width="1003.783" Loaded="Window_Loaded">
+        Title="NanoDLP Browser" Height="730" Width="1003.783" Loaded="Window_Loaded">
     <Window.Resources>
         <ResourceDictionary>
             <BitmapImage x:Key="ImageSource1" UriSource="./delete.png" />

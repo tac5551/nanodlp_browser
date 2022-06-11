@@ -78,30 +78,43 @@ namespace NanoDLP_Browser
         {
             Button btn = (Button)sender;
             Dto current = btn.DataContext as Dto;
-            try
+            if (current.isNova3D)
             {
-                using (var client = new HttpClient())
-                {
-                    string stopApi = "z-axis/top";
-                    var result = await client.GetAsync(current.URI + "" + stopApi);
-                }
+
             }
-            catch { }
+            else {
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        string stopApi = "z-axis/top";
+                        var result = await client.GetAsync(current.URI + "" + stopApi);
+                    }
+                }
+                catch { }
+            }
         }
 
         private async void moveBottom_Click(object sender, RoutedEventArgs e)
         {
             Button btn = (Button)sender;
             Dto current = btn.DataContext as Dto;
-            try
+            if (current.isNova3D)
             {
-                using (var client = new HttpClient())
-                {
-                    string stopApi = "z-axis/bottom";
-                    var result = await client.GetAsync(current.URI + "" + stopApi);
-                }
+ 
             }
-            catch { }
+            else
+            {
+                try
+                {
+                    using (var client = new HttpClient())
+                    {
+                        string stopApi = "z-axis/bottom";
+                        var result = await client.GetAsync(current.URI + "" + stopApi);
+                    }
+                }
+                catch { }
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -262,6 +275,11 @@ namespace NanoDLP_Browser
                 _dtos.Remove(current);
                 FileIO.SaveFile(_dtos);
             }
+        }
+
+        private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 

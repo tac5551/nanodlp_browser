@@ -24,6 +24,7 @@ namespace NanoDLP_Browser
             LayerNow = 0;
             Printing = false;
             isOctprint = false;
+            isNova3D = false;
         }
         [XmlElement("name")]
         public string Name { get; set; }
@@ -38,6 +39,8 @@ namespace NanoDLP_Browser
 
         [XmlElement("isOctprint")]
         public bool isOctprint { get; set; }
+        [XmlElement("isNova3d")]
+        public bool isNova3D { get; set; }
         [XmlIgnore] 
         public string Remaining { get; set; }
         [XmlIgnore]
@@ -97,8 +100,13 @@ namespace NanoDLP_Browser
                 {
                     return new SolidColorBrush(Colors.Lavender);
                 }
-                else if (ManualAdd) {
-                    return new SolidColorBrush(Colors.Ivory);
+                else if (ManualAdd && isNova3D)
+                {
+                    return new SolidColorBrush(Colors.LightSalmon);
+                }
+                else if (ManualAdd && isOctprint)
+                {
+                    return new SolidColorBrush(Colors.LightGreen);
                 }
                 else
                 {
